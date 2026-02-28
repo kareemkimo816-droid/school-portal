@@ -23,18 +23,17 @@ gid_map = {
     "Grade9": "1978952219", "Grade10": "239983167", "Grade11": "70337667"
 }
 
-# --- ⚡ تحسين سرعة التحميل (Caching) ---
-@st.cache_data(ttl=600) # بيخزن البيانات 10 دقائق لتسريع الموقع جداً
+# دالة السرعة (Caching)
+@st.cache_data(ttl=300) 
 def load_data(url):
-    df = pd.read_csv(url, dtype=str)
-    return df
+    return pd.read_csv(url, dtype=str)
 
 def get_subject_style(subject):
     sub = subject.lower()
     if "arabic" in sub or "عربي" in sub: return "📜", "#059669"
     elif "english" in sub or "انجليزي" in sub: return "🔤", "#2563EB"
-    elif "math" in sub or "ماث" in sub or "رياضيات" in sub: return "🔢", "#DC2626"
-    elif "science" in sub or "ساينس" in sub or "علوم" in sub: return "🧪", "#7C3AED"
+    elif "math" in sub or "ماث" in sub: return "🔢", "#DC2626"
+    elif "science" in sub or "ساينس" in sub: return "🧪", "#7C3AED"
     elif "social" in sub or "دراسات" in sub: return "🌍", "#92400E"
     elif "religion" in sub or "دين" in sub: return "🕌", "#047857"
     else: return "📚", "#1E3A8A"
@@ -43,18 +42,21 @@ def get_subject_style(subject):
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", ["Choose Grade / اختر المرحلة"] + list(gid_map.keys()))
 
 if stage != "Choose Grade / اختر المرحلة":
+    # --- 🔍 مكان خانة البحث الجديد (فوق الكل) ---
+    search_query = st.text_input("🔍 Search Subject or Date / ابحث بالمادة أو التاريخ:", key="search_bar").strip().lower()
+    
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid_map[stage]}&v={random.randint(1,999999)}"
-        df = load_data(url) # استخدام الدالة السريعة
+        df = load_data(url)
         df = df[df.iloc[:, 0].notna()].copy()
-
-        # --- 🔍 ميزة البحث الذكي ---
-        search_query = st.text_input("🔍 Search by Subject or Date / ابحث بالمادة أو التاريخ:", "").strip().lower()
 
         if not df.empty:
             df_display = df.iloc[::-1]
             
+            # عداد للتأكد إذا كان البحث لم يجد نتائج
+            found_any = False
+
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
@@ -62,8 +64,9 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # فلترة النتائج بناءً على البحث
+                # الفلترة الذكية
                 if search_query in sub_name.lower() or search_query in u_date.lower():
+                    found_any = True
                     emoji, color = get_subject_style(sub_name)
                     header_text = f"{emoji} {u_date}  |  **{sub_name.upper()}**"
                     
@@ -75,16 +78,17 @@ if stage != "Choose Grade / اختر المرحلة":
                                 </h3>
                             </div>
                         """, unsafe_allow_html=True)
-
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
-                        
                         if notes and notes.lower() != "nan" and notes.strip() != "":
                             st.info(f"💡 **Notes:** {notes}")
+            
+            if not found_any:
+                st.warning("No matching subjects found! / لا توجد نتائج مطابقة")
         else:
             st.warning("No data found.")
     except Exception as e:
-        st.error("Connection Error!")
+        st.error("Error loading data!")
 
 # 5. التذييل
 st.divider()
