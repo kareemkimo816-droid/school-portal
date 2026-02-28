@@ -1,49 +1,25 @@
 import streamlit as st
 import pandas as pd
 
-# إعداد الصفحة
-st.set_page_config(page_title="First Language School", page_icon="🏫", layout="wide")
+st.set_page_config(page_title="First Language School", page_icon="🏫")
+st.title("🏫 First Language School - Giza")
 
-# الهيدر والشعار (تقدر تغير رابط الصورة بلوجو مدرستك)
-st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>🏫 First Language School - Giza</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 20px;'>متابعة المنهج الأسبوعي والواجبات</p>", unsafe_allow_html=True)
-
-# رابط الشيت بتاعك اللي بعتهولي (بصيغة التصدير)
 sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
-url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid="
+stages = ["kg1", "kg2", "Grade1", "Grade2", "Grade3", "Grade4", "Grade5", "Grade6", "Grade7", "Grade8", "Grade9", "Grade10", "Grade11"]
+stage = st.selectbox("اختر المرحلة الدراسية:", stages)
 
-# قائمة المراحل (تأكد إنها نفس أسماء التبويبات عندك)
-stages = {
-    "Grade8": "0",  # الرقم ده (gid) بيتغير لكل تبويب، هعرفك تجيبه إزاي
-    "KG 1": "12345", 
-}
-
-# اختيار المرحلة
-# قائمة المراحل كاملة كما طلبت
-stages_list = [
-    "KG 1", "KG 2", 
-    "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", 
-    "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11"
-]
-
-stage = st.selectbox("اختر المرحلة الدراسية:", stages_list)
-
-# قراءة البيانات وعرضها
 try:
-    # هنا الكود بيروح يقرأ من جوجل شيت فوراً
-    df = pd.read_csv(f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={selected_stage}")
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}"
+    df = pd.read_csv(url)
     
-    st.divider()
-    
-    # عرض البيانات في شكل بطاقات (Cards)
-    cols = st.columns(3) # عرض 3 مواد في كل صف
-    for index, row in df.iterrows():
-        with cols[index % 3]:
+    if not df.empty:
+        # الكود ده هيعرض أول 3 أعمدة بغض النظر عن أسمائهم إيه
+        for index, row in df.iterrows():
             with st.container(border=True):
-                st.subheader(f"📖 {row['المادة']}")
-                st.info(f"**المنهج:** {row['ما تم دراسته']}")
-                st.warning(f"**الواجب:** {row['الواجب']}")
-                if 'ملاحظات' in row:
-                    st.write(f"📝 {row['ملاحظات']}")
+                st.subheader(f"📖 {row.iloc[0]}") # العمود الأول (المادة)
+                st.info(f"**المنهج:** {row.iloc[1]}") # العمود الثاني
+                st.warning(f"**الواجب:** {row.iloc[2]}") # العمود الثالث
+    else:
+        st.info("لا توجد بيانات مسجلة في هذه المرحلة حتى الآن.")
 except:
-    st.error("جاري تجهيز بيانات هذه المرحلة.. فضلاً اختر مرحلة أخرى.")
+    st.error("تأكد أن اسم التبويب في الإكسيل مطابق لما اخترته (مثلاً Grade8)")
