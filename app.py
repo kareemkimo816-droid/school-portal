@@ -14,7 +14,7 @@ url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid=
 
 # قائمة المراحل (تأكد إنها نفس أسماء التبويبات عندك)
 stages = {
-    "Prep 2": "0",  # الرقم ده (gid) بيتغير لكل تبويب، هعرفك تجيبه إزاي
+    "Grade8": "0",  # الرقم ده (gid) بيتغير لكل تبويب، هعرفك تجيبه إزاي
     "KG 1": "12345", 
 }
 
