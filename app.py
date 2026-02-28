@@ -21,29 +21,28 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # رابط السحب المباشر لضمان وصول كل الصفوف
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid=0&sheet={stage}&v={random.randint(1,999999)}"
+        # سحب البيانات بأضمن طريقة (Export CSV)
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         df = pd.read_csv(url)
 
-        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
+        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # --- خطوة الترتيب الذكي ---
-            # تحويل عمود التاريخ (العمود الخامس E) لتاريخ حقيقي للفرز فقط
-            # 'dayfirst=True' عشان يفهم إن 1/3 هو 1 مارس
-            df['sort_date'] = pd.to_datetime(df.iloc[:, 4], dayfirst=True, errors='coerce')
+            # --- السر في السطرين دول للترتيب الصح ---
+            # 1. بنحول العمود الخامس (التاريخ) لتاريخ حقيقي بيفهمه الكمبيوتر
+            # 'dayfirst=True' عشان يفهم إننا بنبدأ باليوم مش الشهر
+            df['actual_date'] = pd.to_datetime(df.iloc[:, 4], dayfirst=True, errors='coerce')
             
-            # ترتيب البيانات: الأحدث تاريخاً فوق (Descending)
-            # ولو التاريخ مش مكتوب صح، هيفضل في مكانه مش هيختفي
-            df = df.sort_values(by='sort_date', ascending=False)
+            # 2. ترتيب تنازلي: الأحدث (القيمة الأكبر زمنياً) تظهر فوق
+            df = df.sort_values(by='actual_date', ascending=False)
 
             for index, row in df.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                 h_work   = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
-                # بنعرض التاريخ الأصلي اللي أنت كاتبه بإيدك عشان ما يختفيش
+                # بنعرض التاريخ زي ما أنت كاتبه بالظبط في الشيت
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
                 with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
