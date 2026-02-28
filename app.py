@@ -22,31 +22,30 @@ if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
-        # قراءة البيانات وحذف الصفوف الفارغة تماماً
         df = pd.read_csv(url).dropna(how='all')
         
         if not df.empty:
-            # تنظيف أسماء المواد من المسافات الزائدة
-            df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
-            
+            # تنظيف البيانات
+            df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip() # المادة
+            df.iloc[:, 4] = pd.to_datetime(df.iloc[:, 4], dayfirst=True, errors='coerce') # تحويل التاريخ لنوع تاريخ حقيقي
+
             # الحصول على قائمة المواد الفريدة
             unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
-                # عرض اسم المادة كعنوان رئيسي
                 st.markdown(f"### 📘 {sub}")
                 
-                # --- التعديل الجوهري هنا ---
-                # جلب صفوف المادة دي وعكس ترتيبها (بناخد من تحت لفوق في الشيت)
-                sub_data_reversed = df[df.iloc[:, 0] == sub][::-1]
+                # جلب بيانات المادة وترتيبها (التاريخ الأحدث فوق)
+                sub_data = df[df.iloc[:, 0] == sub].sort_values(by=df.columns[4], ascending=False)
 
-                for index, row in sub_data_reversed.iterrows():
+                for index, row in sub_data.iterrows():
+                    # تحويل التاريخ لشكل مقروء (1/3/2026)
+                    u_date = row.iloc[4].strftime('%d/%m/%Y') if pd.notnull(row.iloc[4]) else "No Date"
                     lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                     h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
-                    u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    # عرض التاريخ الحديث فوق والقديم تحت
+                    # عرض البيانات (الأحدث سيظهر أولاً بسبب sort_values)
                     with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
@@ -57,7 +56,7 @@ if stage != "Choose Grade / اختر المرحلة":
         else:
             st.warning("No data found.")
     except Exception as e:
-        st.error(f"Error: Make sure the sheet name is exactly '{stage}'")
+        st.error(f"Error: {e}")
 
 st.divider()
 st.markdown("<div style='text-align: center;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
