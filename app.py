@@ -5,29 +5,29 @@ import random
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫", layout="centered")
 
-# --- 🎨 كود CSS المطور (تنسيق الموقع + شريط الأخبار) ---
+# --- 🎨 كود التنسيق (CSS) ---
 st.markdown("""
     <style>
-    /* 1. تنسيق شريط الأخبار (Announcements) */
+    /* تنسيق شريط الأخبار */
     .announcement-bar {
-        background-color: #FFEB3B; /* لون أصفر زاهي للتنبيه */
-        padding: 10px;
+        background-color: #FFEB3B; 
+        padding: 12px;
         border-radius: 10px;
-        border-left: 10px solid #FBC02D;
+        border-right: 8px solid #FBC02D;
         text-align: center;
         color: #1E3A8A;
         font-weight: bold;
-        font-size: 18px;
-        margin-bottom: 25px;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        font-size: 19px;
+        margin-bottom: 20px;
+        direction: rtl; /* عشان الكلام العربي يبدأ صح */
     }
-    
-    /* 2. تنسيق العناوين والمربعات */
+    /* تكبير عناوين البحث والاختيار */
     .stSelectbox label p, .stTextInput label p {
-        font-size: 20px !important;
+        font-size: 22px !important;
         font-weight: bold !important;
         color: #1E3A8A !important;
     }
+    /* تمييز المربعات */
     div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
         background-color: #F8FAFC !important;
         border: 2px solid #1E3A8A !important;
@@ -36,7 +36,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 📣 جزء شريط الأخبار (تقدر تغير النص اللي هنا براحتك) ---
+# --- 📢 شريط أخبار المدرسة (غير النص هنا براحتك) ---
 st.markdown("""
     <div class="announcement-bar">
         📢 تنبيه هام: يرجى العلم بأن موعد امتحانات الشهر سيبدأ من الأحد القادم. بالتوفيق لجميع الطلاب!
@@ -61,6 +61,10 @@ gid_map = {
     "Grade9": "1978952219", "Grade10": "239983167", "Grade11": "70337667"
 }
 
+@st.cache_data(ttl=300) 
+def load_data(url):
+    return pd.read_csv(url, dtype=str)
+
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", ["Choose Grade / اختر المرحلة"] + list(gid_map.keys()))
 
 if stage != "Choose Grade / اختر المرحلة":
@@ -69,7 +73,7 @@ if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid_map[stage]}&v={random.randint(1,999999)}"
-        df = pd.read_csv(url, dtype=str)
+        df = load_data(url)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
@@ -82,8 +86,7 @@ if stage != "Choose Grade / اختر المرحلة":
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
                 if search_query in sub_name.lower() or search_query in u_date.lower():
-                    # تنسيق المربعات البارزة
-                    header_text = f"📅 {u_date}  |  📘 **{sub_name.upper()}**"
+                    header_text = f"📅 {u_date} | 📘 **{sub_name.upper()}**"
                     with st.expander(header_text, expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
