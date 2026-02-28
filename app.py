@@ -22,9 +22,9 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # التعديل الجوهري: استخدام رابط التصدير المباشر (export) بدل (gviz)
-        # الرابط ده بيسحب الشيت "خام" فمستحيل يعمل Limit أو يخفي صفوف
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={stage}&v={random.randint(1,999999)}"
+        # السر هنا: استخدام رابط gviz مع طلب (select *) لإجبار جوجل يبعت كل السطور
+        # وتحديد اسم الورقة (sheet) لضمان عدم تكرار البيانات بين المراحل
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&tq=select%20*&v={random.randint(1,999999)}"
         
         # قراءة البيانات بالكامل
         df = pd.read_csv(url, dtype=str)
@@ -33,7 +33,7 @@ if stage != "Choose Grade / اختر المرحلة":
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحته
+            # ترتيب عكسي: الأحدث فوق والقديم (28/2) تحت
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -49,9 +49,10 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}.")
+            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في تبويب {stage} بجوجل شيت.")
+            
     except Exception as e:
-        st.error("Error! حدث خطأ في الاتصال بجوجل شيت.")
+        st.error(f"Error! حدث خطأ في جلب بيانات {stage}. تأكد من اسم التبويب.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
