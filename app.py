@@ -17,21 +17,12 @@ st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Languag
 st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
 st.divider()
 
-# 3. قاموس الـ GID اللي حضرتك بعته
+# 3. قاموس الـ GID
 gid_map = {
-    "kg1": "0",
-    "kg2": "559030275",
-    "Grade1": "1142208249",
-    "Grade2": "194133386",
-    "Grade3": "100632757",
-    "Grade4": "1689139431",
-    "Grade5": "285063318",
-    "Grade6": "11126465",
-    "Grade7": "1536369128",
-    "Grade8": "1668133231",
-    "Grade9": "1978952219",
-    "Grade10": "239983167",
-    "Grade11": "70337667"
+    "kg1": "0", "kg2": "559030275", "Grade1": "1142208249", "Grade2": "194133386",
+    "Grade3": "100632757", "Grade4": "1689139431", "Grade5": "285063318",
+    "Grade6": "11126465", "Grade7": "1536369128", "Grade8": "1668133231",
+    "Grade9": "1978952219", "Grade10": "239983167", "Grade11": "70337667"
 }
 
 # 4. اختيار المرحلة
@@ -43,17 +34,11 @@ if stage != "Choose Grade / اختر المرحلة":
     selected_gid = gid_map[stage]
     
     try:
-        # الرابط السحري اللي بيسحب الصفحة كاملة بناءً على الـ GID
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={selected_gid}&v={random.randint(1,999999)}"
-        
-        # قراءة البيانات
         df = pd.read_csv(url, dtype=str)
-
-        # تنظيف: استبعاد الصفوف الفارغة في أول عمود (المادة)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث فوق والقديم تحت
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -63,16 +48,25 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
+                # --- التعديل هنا لجمال الشكل ---
+                # جعل اسم المادة داخل الـ Expander واضح جداً
+                header_text = f"📅 {u_date} | {sub_name.upper()}"
+                
+                with st.expander(header_text, expanded=True):
+                    # عرض اسم المادة بخط كبير وسميك ملون
+                    st.markdown(f"<h4 style='color: #1E3A8A; margin-bottom: 0px;'>Subject: {sub_name}</h4>", unsafe_allow_html=True)
+                    st.divider() # خط رفيع تحت اسم المادة
+                    
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
+                    
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage} / لا توجد بيانات لهذه المرحلة حالياً")
+            st.warning("No data found for this grade.")
             
     except Exception as e:
-        st.error("Connection Error! برجاء التأكد من اتصال الإنترنت أو صلاحيات الشيت.")
+        st.error("Connection Error! Please check your internet.")
 
 # 5. التذييل
 st.divider()
