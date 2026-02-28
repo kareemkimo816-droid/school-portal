@@ -51,7 +51,7 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في تبويب {stage} بجوجل شيت.")
+            st.warning(f"No data found for {stage}.")
             
     except Exception as e:
         st.error(f"Error! لم نتمكن من الوصول لبيانات {stage}. تأكد أن اسم التبويب في جوجل شيت يطابق الاختيار تماماً.")
