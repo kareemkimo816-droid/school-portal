@@ -26,34 +26,33 @@ if stage != "Choose Grade / اختر المرحلة":
         df = pd.read_csv(url).dropna(how='all')
         
         if not df.empty:
-            # توحيد أسماء المواد (عشان لو فيه مسافة زيادة ميبوظش التجميع)
+            # تنظيف أسماء المواد من المسافات الزائدة
             df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
             
-            # الحصول على قائمة المواد الفريدة (عربي، انجليزي، الخ)
+            # الحصول على قائمة المواد الفريدة
             unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
-                # إنشاء عنوان ملون لكل مادة
+                # عرض اسم المادة كعنوان رئيسي
                 st.markdown(f"### 📘 {sub}")
                 
-                # جلب كل صفوف المادة دي فقط وعكس ترتيبها (الأحدث فوق)
-                sub_data = df[df.iloc[:, 0] == sub].iloc[::-1]
+                # --- التعديل الجوهري هنا ---
+                # جلب صفوف المادة دي وعكس ترتيبها (بناخد من تحت لفوق في الشيت)
+                sub_data_reversed = df[df.iloc[:, 0] == sub][::-1]
 
-                for index, row in sub_data.iterrows():
-                    # سحب البيانات
+                for index, row in sub_data_reversed.iterrows():
                     lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                     h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                     u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    # عرض "تاريخ المادة" في صندوق (Expander)
+                    # عرض التاريخ الحديث فوق والقديم تحت
                     with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
                         if notes and str(notes).lower() != "nan" and notes.strip() != "":
                             st.info(f"**💡 Notes:** {notes}")
                 
-                # خط بسيط يفصل بين كل مادة والتانية
                 st.markdown("---")
         else:
             st.warning("No data found.")
