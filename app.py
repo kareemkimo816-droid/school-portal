@@ -22,20 +22,21 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # الحل الجذري: استخدام رابط التحميل المباشر (export) مع تحديد اسم الورقة
-        # وإضافة رقم عشوائي (v) لكسر ذاكرة جوجل وإجباره على إرسال كل الصفوف
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # الحل الجذري: استخدام رابط الـ Export المباشر بصيغة CSV
+        # وإضافة tqx=out:csv مع كسر الكاش لضمان سحب "كل" السطور
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&tq=SELECT+*&v={random.randint(1,999999)}"
         
-        # قراءة البيانات مع إجبار البرنامج على رؤية كل الأعمدة والصفوف
+        # قراءة البيانات مع إجبار البرنامج على فحص كل الصفوف
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: استبعاد الصفوف الفارغة في أول عمود (اسم المادة)
+        # أهم خطوة: تنظيف البيانات وحذف الصفوف اللي مفيهاش مادة (العمود A)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # الترتيب العكسي: الأحدث فوق والقديم (28/2) تحت
+            # الترتيب العكسي: الجديد فوق والقديم (28/2) تحت
             df_display = df.iloc[::-1]
 
+            # عرض كل السطور اللي تم سحبها بلا استثناء
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
@@ -49,9 +50,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}.")
+            st.warning(f"No data found for {stage}. تأكد من كتابة البيانات في الشيت.")
     except Exception as e:
-        st.error(f"Error! تأكد أن اسم الورقة في جوجل شيت هو '{stage}' بالضبط.")
+        st.error(f"Error! لم يتم العثور على التبويب '{stage}' في جوجل شيت.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
