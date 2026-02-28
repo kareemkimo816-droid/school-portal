@@ -22,21 +22,20 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # السر هنا: استخدام رابط التصدير المباشر export?format=csv
-        # وإضافة v عشوائية لكسر الكاش تماماً
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # الحل الجذري: رابط التصدير المباشر مع تحديد اسم الورقة (sheet)
+        # الرابط ده بيسحب "كل سطر" مكتوب في الصفحة بدون أي فلاتر من جوجل
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&tq=select%20*&v={random.randint(1,999999)}"
         
-        # قراءة البيانات بالكامل
+        # قراءة البيانات
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: استبعاد الصفوف الفارغة في العمود الأول
+        # تنظيف: استبعاد الصفوف الفارغة في أول عمود
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي (Index): الأحدث فوق
+            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحته
             df_display = df.iloc[::-1]
 
-            # عرض كل الصفوف بلا استثناء
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
@@ -50,9 +49,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}. جرب تحديث الشيت.")
+            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في الشيت.")
     except Exception as e:
-        st.error(f"Error! تأكد أن اسم التبويب هو '{stage}' بالضبط.")
+        st.error("Error! حدث خطأ في الاتصال بجوجل شيت.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
