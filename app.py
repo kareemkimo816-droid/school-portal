@@ -22,17 +22,18 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # التعديل هنا: استخدام رابط gviz مع كسر الكاش وتحديد اسم الورقة (sheet) بدقة
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # --- التعديل السحري هنا ---
+        # أضفنا &range=A1:Z500 لإجبار جوجل يقرأ كل الصفوف حتى القديمة منها
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&range=A1:Z500&v={random.randint(1,999999)}"
         
-        # قراءة البيانات
+        # قراءة البيانات كـ نصوص لضمان عدم حذف أي تاريخ
         df = pd.read_csv(url, dtype=str)
 
         # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # الترتيب العكسي (الأحدث فوق)
+            # ترتيب عكسي (Index): الأحدث في الشيت يظهر أول واحد
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -48,9 +49,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found in '{stage}'. تأكد من وجود بيانات في صفحة {stage} في جوجل شيت.")
+            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في الشيت.")
     except Exception as e:
-        st.error(f"Error! تأكد أن اسم التبويب في جوجل شيت هو '{stage}' بالظبط.")
+        st.error(f"Error! تأكد أن اسم التبويب هو '{stage}' بالضبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
