@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 import random
+import urllib.parse
 
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 
-# 2. الشعار والعناوين
+# 2. الشعار
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     try: st.image("logo.png", use_container_width=True)
@@ -21,13 +22,17 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # التعديل هنا: استخدام رابط gviz مع تحديد اسم الورقة (sheet) لضمان الفصل بين المراحل
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # --- الطريقة النووية لسحب البيانات بدون فقدان ---
+        # تحويل اسم المرحلة لنص يفهمه الرابط (عشان لو فيه مسافات)
+        encoded_stage = urllib.parse.quote(stage)
         
-        # قراءة البيانات
+        # رابط "تصدير" الملف كاملاً (Export) مع تحديد اسم الشيت (sheet)
+        # ده بيضمن إن كل الصفوف القديمة والجديدة تيجي "باكدج واحدة"
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={encoded_stage}&v={random.randint(1,999999)}"
+        
         df = pd.read_csv(url)
 
-        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
+        # تنظيف: حذف الصفوف اللي مفيهاش مادة (العمود A)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
@@ -43,7 +48,8 @@ if stage != "Choose Grade / اختر المرحلة":
                 # جلب بيانات المادة لهذه المرحلة فقط
                 sub_data = df[df.iloc[:, 0] == sub]
                 
-                # ترتيب عكسي (الجديد فوق)
+                # ترتيب عكسي (عشان اللي كتبته تحت في الشيت يظهر هو الأول فوق)
+                # دي أضمن طريقة للترتيب من غير ما الداتا تختفي
                 sub_data_display = sub_data.iloc[::-1]
 
                 for index, row in sub_data_display.iterrows():
@@ -59,9 +65,9 @@ if stage != "Choose Grade / اختر المرحلة":
                             st.info(f"**💡 Notes:** {notes}")
                 st.divider()
         else:
-            st.warning(f"No data found in '{stage}'. تأكد من كتابة بيانات في صفحة {stage} في جوجل شيت.")
+            st.warning(f"No data found in '{stage}'.")
     except Exception as e:
-        st.error(f"Error: تأكد أن اسم المرحلة في الكود هو نفس اسم الورقة في جوجل شيت بالظبط.")
+        st.error("Error! تأكد أن اسم المرحلة في الكود يطابق تماماً اسم التبويب في جوجل شيت.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
