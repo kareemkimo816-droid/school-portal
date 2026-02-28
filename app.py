@@ -8,8 +8,10 @@ st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 # 2. الشعار
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    try: st.image("logo.png", use_container_width=True)
-    except: pass
+    try: 
+        st.image("logo.png", use_container_width=True)
+    except: 
+        pass
 
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
@@ -22,18 +24,18 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # الحل الذهبي: استخدام رابط gviz مع تحديد اسم الصفحة (sheet) 
-        # وإضافة tq=select * لضمان سحب كل السطور (منع اختفاء 28/2)
+        # التعديل الجوهري: استخدام رابط gviz مع تحديد sheet بدقة 
+        # واستخدام tq=select * لإجبار جوجل على إرسال كافة السطور (حل مشكلة 28/2)
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&tq=select%20*&v={random.randint(1,999999)}"
         
-        # قراءة البيانات
+        # قراءة البيانات بالكامل
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: استبعاد الصفوف الفارغة في العمود الأول
+        # تنظيف: استبعاد الصفوف الفارغة في أول عمود
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث فوق والقديم تحت
+            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحت بكل سلاسة
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -49,9 +51,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في صفحة {stage} داخل الشيت.")
+            st.warning(f"No data found for {stage}. تأكد أن تبويب الشيت يحتوي على بيانات.")
     except Exception as e:
-        st.error(f"Error! تأكد أن اسم الصفحة في جوجل شيت هو '{stage}' بالظبط.")
+        st.error(f"Error! تأكد أن اسم التبويب في جوجل شيت هو '{stage}' بالضبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
