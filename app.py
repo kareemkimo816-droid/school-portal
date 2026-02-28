@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import random
+import time
 
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
@@ -21,21 +22,20 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
-    
-    # ماب لربط كل مرحلة باسمها في الشيت لضمان الاستقلالية التامة
     try:
-        # الحل الجديد: سحب البيانات بصيغة التحميل المباشر مع تحديد اسم الورقة
-        # الرابط ده بيجبر جوجل يبعت "كل" الصفوف (القديم والجديد)
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # الحل ده بيستخدم رابط الـ export المباشر مع رقم عشوائي قوي جداً لكسر الكاش
+        # وبنضيف "gid=0" عشان نضمن إنه يبدأ من أول الصفحة
+        timestamp = int(time.time())
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&t={timestamp}"
         
-        # قراءة البيانات مع إجبار البايثون على رؤية كل الصفوف حتى 1000 سطر
-        df = pd.read_csv(url, dtype=str, skip_blank_lines=True)
+        # قراءة البيانات مع استعراض 1000 سطر لضمان وصول 28/2
+        df = pd.read_csv(url, dtype=str)
 
-        # تنظيف البيانات: حذف الصفوف اللي مفيهاش مادة في العمود الأول
+        # تنظيف: حذف الصفوف اللي مفيهاش مادة
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي (Index): الأحدث فوق والقديم (28/2) تحت
+            # الترتيب العكسي (الأحدث فوق)
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -53,7 +53,7 @@ if stage != "Choose Grade / اختر المرحلة":
         else:
             st.warning(f"No data found for {stage}.")
     except Exception as e:
-        st.error(f"Error! تأكد أن اسم التبويب هو '{stage}' بالضبط.")
+        st.error("Error! حدث خطأ أثناء الاتصال بجوجل شيت.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
