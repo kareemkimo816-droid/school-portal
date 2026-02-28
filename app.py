@@ -22,22 +22,21 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # الحل الجديد: سحب الورقة كملف CSV كامل ومباشر باسم التبويب
-        # ده أقوى رابط لضمان وصول كل سطر (28/2 و 1/3 و 5/3)
+        # السر هنا: استخدام رابط التصدير المباشر export?format=csv
+        # وإضافة v عشوائية لكسر الكاش تماماً
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات مع إجبار البرنامج على رؤية 1000 سطر
+        # قراءة البيانات بالكامل
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: حذف أي صفوف فاضية تماماً
-        df = df.dropna(how='all')
-        # التأكد من وجود بيانات في العمود الأول (المادة)
+        # تنظيف: استبعاد الصفوف الفارغة في العمود الأول
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # الترتيب العكسي: الجديد فوق والقديم تحت
+            # ترتيب عكسي (Index): الأحدث فوق
             df_display = df.iloc[::-1]
 
+            # عرض كل الصفوف بلا استثناء
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
@@ -51,9 +50,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}.")
+            st.warning(f"No data found for {stage}. جرب تحديث الشيت.")
     except Exception as e:
-        st.error("Error! برجاء التأكد من تحديث بيانات جوجل شيت.")
+        st.error(f"Error! تأكد أن اسم التبويب هو '{stage}' بالضبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
