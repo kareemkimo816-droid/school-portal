@@ -23,43 +23,34 @@ if stage == "Choose Grade / اختر المرحلة":
 else:
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # جلب البيانات مع مانع التخزين المؤقت
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,10000)}"
+        # جلب البيانات وإلغاء الكاش تماماً
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,100000)}"
         df = pd.read_csv(url)
         
         if not df.empty:
-            # تنظيف أسماء المواد (إزالة المسافات وتوحيد حالة الأحرف للبحث فقط)
-            df['Clean_Subject'] = df.iloc[:, 0].astype(str).str.strip().str.upper()
-            
-            # الحصول على المواد الفريدة بناءً على الاسم "النظيف"
-            unique_subjects_clean = df['Clean_Subject'].unique()
+            # ترتيب عكسي للجدول بالكامل (الأحدث في الشيت يظهر أولاً في الموقع)
+            df_reversed = df.iloc[::-1]
 
-            for sub_clean in unique_subjects_clean:
-                # الحصول على الاسم الأصلي للمادة لعرضه كعنوان
-                original_sub_name = df[df['Clean_Subject'] == sub_clean].iloc[0, 0]
-                st.markdown(f"### 📘 {original_sub_name}")
-                
-                # جلب كل الصفوف الخاصة بهذه المادة وعكسها (الأحدث فوق)
-                sub_data = df[df['Clean_Subject'] == sub_clean].iloc[::-1]
+            for index, row in df_reversed.iterrows():
+                # سحب البيانات من الأعمدة بالترتيب A, B, C, D, E
+                sub_name = str(row.iloc[0]) if pd.notna(row.iloc[0]) else "General"
+                lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
+                h_work   = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
+                notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
+                u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                for index, row in sub_data.iterrows():
-                    # سحب البيانات بالأرقام
-                    lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
-                    h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
-                    notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
-                    u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
-
-                    # عرض التاريخ في الـ Expander
-                    with st.expander(f"📅 {u_date}", expanded=True):
-                        st.markdown(f"**📖 Lesson:** {lesson}")
-                        st.markdown(f"**📝 Homework:** {h_work}")
-                        if notes and str(notes).lower() != "nan" and notes.strip() != "":
-                            st.info(f"**💡 Notes:** {notes}")
-                st.divider() 
+                # عرض كل مادة في سطر منفصل مع التاريخ
+                # ده بيضمن إن كل سطر في الشيت يظهر لوحده بتاريخه
+                with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
+                    st.markdown(f"**📖 Lesson:** {lesson}")
+                    st.markdown(f"**📝 Homework:** {h_work}")
+                    if notes and str(notes).lower() != "nan" and notes.strip() != "":
+                        st.info(f"**💡 Notes:** {notes}")
         else:
             st.warning("No data found for this grade.")
     except Exception as e:
-        st.error(f"Error loading sheet. Please check the sheet name '{stage}'.")
+        st.error("Error loading data. Please check your Google Sheet.")
 
 # 4. الحقوق
+st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
