@@ -21,47 +21,37 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # جلب البيانات برقم عشوائي لمنع التخزين المؤقت (Cache)
+        # جلب البيانات برقم عشوائي كبير جداً لضمان التحديث
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         df = pd.read_csv(url)
 
-        # تنظيف البيانات من الصفوف الفارغة تماماً
+        # تنظيف: استبعاد الصفوف الفارغة تماماً (لو العمود الأول فاضي)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # تنظيف أسماء المواد (العمود A)
-            df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
-            
-            # الحصول على قائمة المواد الفريدة (عربي، دين، إلخ)
-            unique_subjects = df.iloc[:, 0].unique()
+            # --- السر هنا: هنمشي على الشيت بالعكس سطر سطر ---
+            # هيجيب آخر صف كتبته في الشيت (الجديد) ويعرضه أول واحد في الموقع
+            # وبعدين اللي قبله (القديم) وهكذا..
+            df_reversed = df.iloc[::-1]
 
-            for sub in unique_subjects:
-                st.markdown(f"### 📘 {sub}")
-                
-                # جلب "كل" الصفوف الخاصة بهذه المادة
-                sub_entries = df[df.iloc[:, 0] == sub]
-                
-                # ترتيب عكسي (Index) عشان نجيب الأحدث في الشيت فوق
-                sub_entries_reversed = sub_entries.iloc[::-1]
+            for index, row in df_reversed.iterrows():
+                sub_name = str(row.iloc[0]).strip()
+                lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
+                h_work   = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
+                notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
+                u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # عرض كل الداتا المتاحة للمادة دي
-                for index, row in sub_entries_reversed.iterrows():
-                    lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
-                    h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
-                    notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
-                    u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
-
-                    # استخدام Expander لكل تاريخ عشان القديم والجديد يظهروا
-                    with st.expander(f"📅 {u_date}", expanded=True):
-                        st.markdown(f"**📖 Lesson:** {lesson}")
-                        st.markdown(f"**📝 Homework:** {h_work}")
-                        if notes and str(notes).lower() != "nan" and notes.strip() != "":
-                            st.info(f"**💡 Notes:** {notes}")
-                st.divider()
+                # عرض كل سطر في كارت مستقل
+                # ده بيمنع إن أي تاريخ يختفي لأن كل سطر له "كيان" لوحده
+                with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
+                    st.markdown(f"**📖 Lesson:** {lesson}")
+                    st.markdown(f"**📝 Homework:** {h_work}")
+                    if notes and str(notes).lower() != "nan" and notes.strip() != "":
+                        st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning("No data found.")
+            st.warning("No data found for this grade.")
     except Exception as e:
-        st.error("Error loading data. Please check your internet or sheet names.")
+        st.error("Error loading data. Please refresh the page.")
 
 st.divider()
-st.markdown("<div style='text-align: center;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
