@@ -22,18 +22,18 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # التعديل العبقري: استخدام رابط gviz مع تحديد اسم الورقة (sheet) 
-        # وإضافة tq=select * لإجبار جوجل يبعت "كل" الصفوف (مش آخر سطرين بس)
+        # الحل الجديد: استخدام الرابط المباشر للتبويب مع كسر الكاش
+        # ده بيجبر جوجل يبعت "كل" البيانات الموجودة في الصفحة المختارة
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&tq=select%20*&v={random.randint(1,999999)}"
         
         # قراءة البيانات
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: حذف الصفوف الفاضية في أول عمود
+        # أهم خطوة: تنظيف وحذف السطور الفاضية تماماً
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي (Index): عشان الجديد (5/3) يظهر فوق والقديم (28/2) يظهر تحت
+            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحته
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -49,9 +49,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}.")
+            st.warning(f"No data found for {stage}. تأكد من كتابة البيانات في التبويب الصحيح.")
     except Exception as e:
-        st.error(f"Error! تأكد من وجود صفحة باسم '{stage}' في جوجل شيت.")
+        st.error("Error! تأكد أن التبويب في جوجل شيت بنفس اسم المرحلة بالضبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
