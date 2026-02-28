@@ -23,19 +23,16 @@ gid_map = {
     "Grade9": "1978952219", "Grade10": "239983167", "Grade11": "70337667"
 }
 
-# 4. دالة الإيموجي
-def get_subject_emoji(subject):
+# 4. دالة الإيموجي واللون (للبراوز البارز)
+def get_subject_style(subject):
     sub = subject.lower()
-    if "arabic" in sub or "عربي" in sub: return "📜"
-    elif "english" in sub or "انجليزي" in sub: return "🔤"
-    elif "math" in sub or "ماث" in sub or "رياضيات" in sub: return "🔢"
-    elif "science" in sub or "ساينس" in sub or "علوم" in sub: return "🧪"
-    elif "social" in sub or "دراسات" in sub: return "🌍"
-    elif "religion" in sub or "دين" in sub: return "🕌"
-    elif "computer" in sub or "حاسب" in sub or "ict" in sub: return "💻"
-    elif "art" in sub or "رسم" in sub: return "🎨"
-    elif "french" in sub or "فرنساوي" in sub: return "🗼"
-    else: return "📚"
+    if "arabic" in sub or "عربي" in sub: return "📜", "#059669"
+    elif "english" in sub or "انجليزي" in sub: return "🔤", "#2563EB"
+    elif "math" in sub or "ماث" in sub or "رياضيات" in sub: return "🔢", "#DC2626"
+    elif "science" in sub or "ساينس" in sub or "علوم" in sub: return "🧪", "#7C3AED"
+    elif "social" in sub or "دراسات" in sub: return "🌍", "#92400E"
+    elif "religion" in sub or "دين" in sub: return "🕌", "#047857"
+    else: return "📚", "#1E3A8A"
 
 # 5. اختيار المرحلة
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", ["Choose Grade / اختر المرحلة"] + list(gid_map.keys()))
@@ -53,21 +50,29 @@ if stage != "Choose Grade / اختر المرحلة":
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                 h_work   = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
-                # قراءة الملاحظات من العمود الرابع (index 3)
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                emoji = get_subject_emoji(sub_name)
+                emoji, color = get_subject_style(sub_name)
+                
+                # العنوان الخارجي (للمربع المقفول)
                 header_text = f"{emoji} {u_date}  |  **{sub_name.upper()}**"
                 
                 with st.expander(header_text, expanded=True):
+                    # --- التعديل الجوهري: جعل اسم المادة بارز جداً بالداخل ---
+                    st.markdown(f"""
+                        <div style="background-color:{color}; padding:8px; border-radius:5px; margin-bottom:15px;">
+                            <h3 style="color:white; text-align:center; margin:0; letter-spacing: 2px;">
+                                {emoji} {sub_name.upper()} {emoji}
+                            </h3>
+                        </div>
+                    """, unsafe_allow_html=True)
+
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
                     
-                    # --- عرض الملاحظات لو موجودة ---
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"💡 **Notes:** {notes}")
-                        
         else:
             st.warning("No data found.")
     except Exception as e:
