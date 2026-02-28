@@ -22,21 +22,20 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # الحل الجذري: نستخدم رابط التحميل المباشر بصيغة CSV مع تحديد اسم الورقة
-        # الرابط ده بيسحب الورقة "حرفياً" كما هي بدون أي فلاتر من جوجل
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # التعديل العبقري: بنطلب من جوجل يبعت الصفحة (sheet) دي بالذات كملف CSV 
+        # وبنحدد النطاق A1:E100 لضمان إنه يمسح أول 100 سطر حرفياً
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&range=A1:E100&v={random.randint(1,999999)}"
         
-        # قراءة البيانات بالكامل
+        # قراءة البيانات
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: استبعاد الصفوف الفارغة في أول عمود
+        # تنظيف: حذف الصفوف اللي مفيهاش مادة (العمود الأول)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحته
+            # ترتيب عكسي: الأحدث فوق والقديم (28/2) تحت
             df_display = df.iloc[::-1]
 
-            # عرض كل الصفوف الموجودة في الجدول بلا استثناء
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
@@ -50,9 +49,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في الشيت.")
+            st.warning(f"No data found for {stage}. جرب إضافة بيانات جديدة.")
     except Exception as e:
-        st.error("Error! حدث خطأ في الاتصال بجوجل شيت.")
+        st.error("Error! تأكد أن اسم التبويب في جوجل شيت يطابق الاختيار.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
