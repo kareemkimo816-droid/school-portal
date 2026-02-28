@@ -9,14 +9,12 @@ st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     try:
-        # تأكد إن ملف الصورة اسمه logo.png وموجود بجانب app.py في الـ Github
         st.image("logo.png", use_container_width=True)
     except:
         pass
 
-# 3. العناوين الرئيسية
+# 3. العناوين (Weekly Follow-up)
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
-# إضافة عنوان المتابعة الأسبوعية بالإنجليزية
 st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
 st.divider()
 
@@ -27,19 +25,19 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # رابط السحب المباشر لضمان ظهور كل الصفوف (القديم والجديد)
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # --- الحل الجذري والنهائي هنا ---
+        # سحب الورقة بالكامل بصيغة CSV بدون Query لضمان وصول كل الصفوف
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={stage}&v={random.randint(1,999999)}"
         
+        # قراءة البيانات بالكامل
         df = pd.read_csv(url)
 
-        # تنظيف: حذف الصفوف الفاضية تماماً
-        df = df.dropna(how='all')
-        # التأكد من وجود بيانات في العمود الأول (المادة)
+        # تنظيف البيانات: حذف الصفوف اللي مفيهاش اسم مادة (العمود A)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث في الشيت يظهر هو الأول في الموقع
-            # ده بيضمن إن 1/3 تظهر فوق و 28/2 تظهر تحتها ومستحيل يختفوا
+            # ترتيب عكسي (آخر سطر كتبته في الشيت يظهر هو الأول في الموقع)
+            # ده بيضمن إن 1/3 تظهر فوق و 28/2 تظهر تحتها دايماً
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -49,16 +47,16 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # عرض كل "تاريخ" في كارت مستقل (Expander)
+                # عرض كل سطر (تاريخ) في كارت مستقل
                 with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
                     if notes and str(notes).lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning("No data found for this grade.")
+            st.warning(f"No data found for {stage}.")
     except Exception as e:
-        st.error("Error connecting to Google Sheets. Please refresh.")
+        st.error("Error! تأكد من أن اسم المرحلة في الشيت يطابق الاختيار.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
