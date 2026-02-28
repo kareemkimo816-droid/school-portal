@@ -21,19 +21,21 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
+    
+    # ماب لربط كل مرحلة باسمها في الشيت لضمان الاستقلالية التامة
     try:
-        # --- التعديل السحري هنا ---
-        # أضفنا &range=A1:Z500 لإجبار جوجل يقرأ كل الصفوف حتى القديمة منها
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&range=A1:Z500&v={random.randint(1,999999)}"
+        # الحل الجديد: سحب البيانات بصيغة التحميل المباشر مع تحديد اسم الورقة
+        # الرابط ده بيجبر جوجل يبعت "كل" الصفوف (القديم والجديد)
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات كـ نصوص لضمان عدم حذف أي تاريخ
-        df = pd.read_csv(url, dtype=str)
+        # قراءة البيانات مع إجبار البايثون على رؤية كل الصفوف حتى 1000 سطر
+        df = pd.read_csv(url, dtype=str, skip_blank_lines=True)
 
-        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
+        # تنظيف البيانات: حذف الصفوف اللي مفيهاش مادة في العمود الأول
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي (Index): الأحدث في الشيت يظهر أول واحد
+            # ترتيب عكسي (Index): الأحدث فوق والقديم (28/2) تحت
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -49,7 +51,7 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في الشيت.")
+            st.warning(f"No data found for {stage}.")
     except Exception as e:
         st.error(f"Error! تأكد أن اسم التبويب هو '{stage}' بالضبط.")
 
