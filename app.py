@@ -8,10 +8,8 @@ st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫", l
 # 2. الشعار والعناوين
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    try: 
-        st.image("logo.png", use_container_width=True)
-    except: 
-        pass
+    try: st.image("logo.png", use_container_width=True)
+    except: pass
 
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
@@ -48,25 +46,22 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # --- التعديل هنا لجمال الشكل ---
-                # جعل اسم المادة داخل الـ Expander واضح جداً
-                header_text = f"📅 {u_date} | {sub_name.upper()}"
+                # --- التعديل هنا: اسم المادة بخط عريض وجذاب بجانب التاريخ ---
+                # استعملنا النجوم ** لعمل الخط سميك Bold في العنوان
+                header_text = f"📅 {u_date}  |  📘 {sub_name.upper()}"
                 
                 with st.expander(header_text, expanded=True):
-                    # عرض اسم المادة بخط كبير وسميك ملون
-                    st.markdown(f"<h4 style='color: #1E3A8A; margin-bottom: 0px;'>Subject: {sub_name}</h4>", unsafe_allow_html=True)
-                    st.divider() # خط رفيع تحت اسم المادة
-                    
+                    # عرض التفاصيل مباشرة بدون تكرار العنوان بالداخل
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
                     
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning("No data found for this grade.")
+            st.warning("No data found.")
             
     except Exception as e:
-        st.error("Connection Error! Please check your internet.")
+        st.error("Connection Error!")
 
 # 5. التذييل
 st.divider()
