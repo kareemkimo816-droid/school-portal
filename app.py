@@ -21,10 +21,10 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # --- التعديل الجوهري هنا: رابط Export المباشر ---
-        # ده بيسحب الشيت "خام" كأنه ملف Excel كامل
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={stage}&v={random.randint(1,999999)}"
+        # التعديل هنا: استخدام رابط gviz مع تحديد اسم الورقة (sheet) لضمان الفصل بين المراحل
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
+        # قراءة البيانات
         df = pd.read_csv(url)
 
         # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
@@ -34,17 +34,16 @@ if stage != "Choose Grade / اختر المرحلة":
             # تنظيف أسماء المواد
             df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
             
-            # الحصول على قائمة المواد الفريدة
+            # الحصول على المواد الفريدة
             unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
                 st.markdown(f"### 📘 {sub}")
                 
-                # جلب كل بيانات المادة (القديم والجديد)
+                # جلب بيانات المادة لهذه المرحلة فقط
                 sub_data = df[df.iloc[:, 0] == sub]
                 
-                # ترتيب عكسي (Index): يخلي آخر سطر كتبته في الشيت يظهر هو الأول في الموقع
-                # فلو كتبت 28/2 وبعده 1/3 تحته، الـ 1/3 هتطلع فوق والـ 28/2 تحتها
+                # ترتيب عكسي (الجديد فوق)
                 sub_data_display = sub_data.iloc[::-1]
 
                 for index, row in sub_data_display.iterrows():
@@ -53,7 +52,6 @@ if stage != "Choose Grade / اختر المرحلة":
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                     u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    # عرض البيانات
                     with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
@@ -61,9 +59,9 @@ if stage != "Choose Grade / اختر المرحلة":
                             st.info(f"**💡 Notes:** {notes}")
                 st.divider()
         else:
-            st.warning("No data found for this grade.")
+            st.warning(f"No data found in '{stage}'. تأكد من كتابة بيانات في صفحة {stage} في جوجل شيت.")
     except Exception as e:
-        st.error("Error connecting to Google Sheets. Please check stage name.")
+        st.error(f"Error: تأكد أن اسم المرحلة في الكود هو نفس اسم الورقة في جوجل شيت بالظبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
