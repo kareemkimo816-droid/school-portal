@@ -92,4 +92,28 @@ if stage != "Choose Grade / اختر المرحلة":
                 if search_query in sub_name.lower() or search_query in u_date.lower():
                     found_any = True
                     emoji, color = get_subject_style(sub_name)
-                    header_text = f"{emoji} {u_
+                    header_text = f"{emoji} {u_date}  |  **{sub_name.upper()}**"
+                    
+                    with st.expander(header_text, expanded=True):
+                        st.markdown(f"""
+                            <div style="background-color:{color}; padding:8px; border-radius:5px; margin-bottom:15px;">
+                                <h3 style="color:white; text-align:center; margin:0; letter-spacing: 2px;">
+                                    {emoji} {sub_name.upper()} {emoji}
+                                </h3>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        st.markdown(f"**📖 Lesson:** {lesson}")
+                        st.markdown(f"**📝 Homework:** {h_work}")
+                        if notes and notes.lower() != "nan" and notes.strip() != "":
+                            st.info(f"💡 **Notes:** {notes}")
+            
+            if not found_any and search_query != "":
+                st.warning("No matching subjects found! / لا توجد نتائج مطابقة")
+        else:
+            st.warning("No data found.")
+    except Exception as e:
+        st.error("Error loading data!")
+
+# 5. التذييل
+st.divider()
+st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
