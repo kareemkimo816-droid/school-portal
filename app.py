@@ -5,20 +5,30 @@ import random
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫", layout="centered")
 
-# --- 🎨 كود CSS لتمييز المربعات (المراحل والبحث) ---
+# --- 🎨 كود CSS المطور للخطوط والمربعات ---
 st.markdown("""
     <style>
-    /* تغيير خلفية مربع اختيار المرحلة والبحث */
+    /* 1. تكبير وتوضيح العناوين (Labels) */
+    .stSelectbox label p, .stTextInput label p {
+        font-size: 20px !important; /* حجم خط كبير */
+        font-weight: bold !important; /* خط سميك */
+        color: #1E3A8A !important; /* لون كحلي مدرسي */
+        margin-bottom: 10px !important;
+    }
+    
+    /* 2. تمييز المربعات نفسها */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div {
-        background-color: #F0F2F6 !important; /* لون رمادي فاتح مميز */
-        border: 2px solid #1E3A8A !important; /* إطار كحلي لتحديد المربع */
-        border-radius: 10px !important;
+        background-color: #F8FAFC !important; /* رمادي فاتح جداً مريح */
+        border: 2px solid #1E3A8A !important; /* إطار كحلي واضح */
+        border-radius: 12px !important;
+        height: 50px !important; /* زيادة طول المربع قليلاً */
     }
-    /* تغيير لون الخط داخل المربعات */
-    input {
+
+    /* 3. تكبير الخط المكتوب داخل المربعات */
+    input, div[data-baseweb="select"] {
+        font-size: 18px !important;
         color: #1E3A8A !important;
-        font-weight: bold !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -55,11 +65,11 @@ def get_subject_style(subject):
     elif "religion" in sub or "دين" in sub: return "🕌", "#047857"
     else: return "📚", "#1E3A8A"
 
-# 4. اختيار المرحلة (المربع الملون)
+# 4. اختيار المرحلة (العنوان أصبح كبيراً الآن)
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", ["Choose Grade / اختر المرحلة"] + list(gid_map.keys()))
 
 if stage != "Choose Grade / اختر المرحلة":
-    # 🔍 خانة البحث (المربع الملون)
+    # 🔍 خانة البحث (العنوان أصبح كبيراً الآن)
     search_query = st.text_input("🔍 Search Subject or Date / ابحث بالمادة أو التاريخ:", key="search_bar").strip().lower()
     
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
@@ -82,28 +92,4 @@ if stage != "Choose Grade / اختر المرحلة":
                 if search_query in sub_name.lower() or search_query in u_date.lower():
                     found_any = True
                     emoji, color = get_subject_style(sub_name)
-                    header_text = f"{emoji} {u_date}  |  **{sub_name.upper()}**"
-                    
-                    with st.expander(header_text, expanded=True):
-                        st.markdown(f"""
-                            <div style="background-color:{color}; padding:8px; border-radius:5px; margin-bottom:15px;">
-                                <h3 style="color:white; text-align:center; margin:0; letter-spacing: 2px;">
-                                    {emoji} {sub_name.upper()} {emoji}
-                                </h3>
-                            </div>
-                        """, unsafe_allow_html=True)
-                        st.markdown(f"**📖 Lesson:** {lesson}")
-                        st.markdown(f"**📝 Homework:** {h_work}")
-                        if notes and notes.lower() != "nan" and notes.strip() != "":
-                            st.info(f"💡 **Notes:** {notes}")
-            
-            if not found_any:
-                st.warning("No matching subjects found!")
-        else:
-            st.warning("No data found.")
-    except Exception as e:
-        st.error("Error loading data!")
-
-# 5. التذييل
-st.divider()
-st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
+                    header_text = f"{emoji} {u_
