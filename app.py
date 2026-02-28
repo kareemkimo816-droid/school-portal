@@ -6,9 +6,14 @@ import random
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 
 # عرض الشعار في المنتصف
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
+# --- كود وضع الشعار في المنتصف بالضبط ---
+col1, col2, col3 = st.columns([1, 1, 1]) # تقسيم الشاشة لـ 3 أجزاء متساوية
+with col2: # وضع الصورة في الجزء الأوسط
     try:
+        st.image("logo.png", use_container_width=True) 
+    except:
+        pass
+# ---------------------------------------
         # هنا الكود بينادي على الصورة اللي إنت رفعتها
         st.image("logo.png", width=150)
     except:
