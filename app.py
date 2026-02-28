@@ -28,7 +28,8 @@ if stage != "Choose Grade / اختر المرحلة":
     try:
         # --- السر في السطر ده ---
         # بنستخدم gviz/tq بس بنحدد اسم الـ sheet بدقة وبنكسر الكاش بـ v عشوائي
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+       # هذا الرابط يضمن سحب كل الصفوف المتاحة في التبويب المختار (مثل kg1)
+url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&range=A1:Z100&v={random.randint(1,999999)}"
         
         # قراءة البيانات كـ نصوص (Strings) لضمان عدم حذف أي تاريخ
         df = pd.read_csv(url, dtype=str)
