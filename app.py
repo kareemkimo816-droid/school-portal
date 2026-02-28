@@ -23,7 +23,7 @@ gid_map = {
     "Grade9": "1978952219", "Grade10": "239983167", "Grade11": "70337667"
 }
 
-# 4. دالة تحديد الإيموجي فقط (بدون تكرار اللون بالداخل)
+# 4. دالة الإيموجي
 def get_subject_emoji(subject):
     sub = subject.lower()
     if "arabic" in sub or "عربي" in sub: return "📜"
@@ -53,17 +53,21 @@ if stage != "Choose Grade / اختر المرحلة":
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                 h_work   = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
+                # قراءة الملاحظات من العمود الرابع (index 3)
+                notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
                 emoji = get_subject_emoji(sub_name)
-                
-                # العنوان الخارجي فقط (التاريخ + اسم المادة سميك)
                 header_text = f"{emoji} {u_date}  |  **{sub_name.upper()}**"
                 
                 with st.expander(header_text, expanded=True):
-                    # عرض المحتوى مباشرة دون تكرار اسم المادة
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
+                    
+                    # --- عرض الملاحظات لو موجودة ---
+                    if notes and notes.lower() != "nan" and notes.strip() != "":
+                        st.info(f"💡 **Notes:** {notes}")
+                        
         else:
             st.warning("No data found.")
     except Exception as e:
