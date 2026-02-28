@@ -66,3 +66,28 @@ try:
 
 except Exception as e:
     st.error(f"Please check sheet name: {stage}.")
+    # --- Copyright & Date in English ---
+st.divider() 
+
+st.markdown(
+    """
+    <style>
+    .footer {
+        text-align: center;
+        color: #1E3A8A;
+        padding: 20px;
+        font-size: 14px;
+        font-family: 'Arial', sans-serif;
+    }
+    .copyright-name {
+        font-weight: bold;
+        font-size: 16px;
+    }
+    </style>
+    <div class="footer">
+        <p class="copyright-name">Copyright © 2026: Mr. Kareem Magdy</p>
+        <p>Fadl Modern Language School - All Rights Reserved</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
