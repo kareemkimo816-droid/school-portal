@@ -14,8 +14,10 @@ with col2:
     except:
         pass
 
-# 3. العنوان الرئيسي فقط
+# 3. العناوين الرئيسية
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
+# إضافة عنوان المتابعة الأسبوعية بالإنجليزية
+st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
 st.divider()
 
 # 4. اختيار المرحلة
