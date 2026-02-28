@@ -23,41 +23,42 @@ if stage == "Choose Grade / اختر المرحلة":
 else:
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
+        # جلب البيانات مع إضافة رقم عشوائي لضمان التحديث اللحظي
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,10000)}"
         df = pd.read_csv(url)
         
         if not df.empty:
-            # تنظيف البيانات والتأكد من وجود أسماء للمواد
-            df.columns = ['Subject', 'Lesson', 'Homework', 'Notes', 'Date']
-            df['Subject'] = df['Subject'].fillna('General')
-            
-            # الحصول على قائمة المواد الفريدة (مثل: Arabic, English, Math)
-            unique_subjects = df['Subject'].unique()
+            # الحصول على أسماء المواد الفريدة من العمود الأول (A)
+            # بنشيل أي صفوف فاضية عشان البرنامج ميهنجش
+            df = df.dropna(subset=[df.columns[0]]) 
+            unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
-                # إنشاء "عنوان كبير" لكل مادة
+                # عرض اسم المادة كعنوان رئيسي
                 st.markdown(f"### 📘 {sub}")
                 
-                # جلب كل الصفوف الخاصة بهذه المادة فقط وعكسها (ليظهر الأحدث فوق)
-                sub_data = df[df['Subject'] == sub].iloc[::-1]
+                # تصفية البيانات لكل مادة وعكسها (الأحدث فوق)
+                sub_data = df[df.iloc[:, 0] == sub].iloc[::-1]
 
                 for index, row in sub_data.iterrows():
-                    u_date = str(row['Date']) if pd.notna(row['Date']) else "No Date"
-                    lesson = str(row['Lesson']) if pd.notna(row['Lesson']) else "---"
-                    h_work = str(row['Homework']) if pd.notna(row['Homework']) else "---"
-                    notes = str(row['Notes']) if pd.notna(row['Notes']) else ""
+                    # سحب البيانات بالأرقام لضمان الدقة
+                    # 0=المادة, 1=الدرس, 2=الواجب, 3=ملاحظات, 4=التاريخ
+                    lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
+                    h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
+                    notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
+                    u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    # عرض التواريخ داخل المادة في صناديق (Expander)
-                    with st.expander(f"📅 {u_date}", expanded=False):
+                    # عرض التاريخ في الـ Expander
+                    with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
-                        if notes:
+                        if notes and notes != "nan":
                             st.info(f"**💡 Notes:** {notes}")
-                st.divider() # خط فاصل بين كل مادة والتانية
+                st.divider() 
         else:
-            st.warning("No data found.")
+            st.warning("No data found for this grade. Please check your Google Sheet.")
     except Exception as e:
-        st.error("Error loading data. Please check your Sheet columns.")
+        st.error(f"Error: Make sure the sheet name '{stage}' is correct in Google Sheets.")
 
 # 4. الحقوق
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
