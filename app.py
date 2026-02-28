@@ -21,11 +21,13 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # سحب البيانات بأضمن طريقة
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        # --- التعديل الجوهري هنا: رابط Export المباشر ---
+        # ده بيسحب الشيت "خام" كأنه ملف Excel كامل
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={stage}&v={random.randint(1,999999)}"
+        
         df = pd.read_csv(url)
 
-        # تنظيف: استبعاد الصفوف الفارغة
+        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
@@ -38,12 +40,11 @@ if stage != "Choose Grade / اختر المرحلة":
             for sub in unique_subjects:
                 st.markdown(f"### 📘 {sub}")
                 
-                # جلب بيانات المادة الواحدة
+                # جلب كل بيانات المادة (القديم والجديد)
                 sub_data = df[df.iloc[:, 0] == sub]
                 
-                # --- السر هنا: عكس ترتيب صفوف المادة فقط ---
-                # ده هيخلي "آخر سطر" كتبته في الشيت للمادة دي يظهر "أول واحد" فوق
-                # وبما إنك كتبت 1/3 تحت 28/2، فالـ 1/3 هتظهر فوق والـ 28/2 تحتها ومستحيل تختفي
+                # ترتيب عكسي (Index): يخلي آخر سطر كتبته في الشيت يظهر هو الأول في الموقع
+                # فلو كتبت 28/2 وبعده 1/3 تحته، الـ 1/3 هتطلع فوق والـ 28/2 تحتها
                 sub_data_display = sub_data.iloc[::-1]
 
                 for index, row in sub_data_display.iterrows():
@@ -52,6 +53,7 @@ if stage != "Choose Grade / اختر المرحلة":
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                     u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
+                    # عرض البيانات
                     with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
@@ -59,9 +61,9 @@ if stage != "Choose Grade / اختر المرحلة":
                             st.info(f"**💡 Notes:** {notes}")
                 st.divider()
         else:
-            st.warning("No data found.")
+            st.warning("No data found for this grade.")
     except Exception as e:
-        st.error("Connection error. Please refresh.")
+        st.error("Error connecting to Google Sheets. Please check stage name.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
