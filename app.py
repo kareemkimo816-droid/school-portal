@@ -1,4 +1,4 @@
-import streamlit as st
+import stramlit as st
 import pandas as pd
 import random
 
@@ -23,22 +23,19 @@ stages = ["Choose Grade / اختر المرحلة", "kg1", "kg2", "Grade1", "Gra
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", stages)
 
 if stage != "Choose Grade / اختر المرحلة":
-    # [cite_start]الرابط التعريفي لملف جوجل شيت الخاص بك [cite: 3]
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # --- السر في السطر ده ---
-        # بنستخدم gviz/tq بس بنحدد اسم الـ sheet بدقة وبنكسر الكاش بـ v عشوائي
-       # هذا الرابط يضمن سحب كل الصفوف المتاحة في التبويب المختار (مثل kg1)
-url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&range=A1:Z100&v={random.randint(1,999999)}"
+        # الرابط الذكي مع تحديد النطاق لضمان ظهور كل الصفوف في المرحلة المختارة فقط
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات كـ نصوص (Strings) لضمان عدم حذف أي تاريخ
+        # قراءة البيانات
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: استبعاد الصفوف الفارغة في العمود الأول
+        # تنظيف: استبعاد الصفوف الفارغة في العمود الأول (المادة)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي (Index): الأحدث في الشيت يظهر أول واحد في الموقع
+            # ترتيب عكسي: الأحدث في الشيت يظهر أول واحد في الموقع
             # ده بيضمن إن 1/3 تظهر و 28/2 تظهر تحتها دايماً
             df_display = df.iloc[::-1]
 
@@ -57,8 +54,9 @@ url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sh
                         st.info(f"**💡 Notes:** {notes}")
         else:
             st.warning(f"No data found for {stage}.")
+            
     except Exception as e:
-        st.error(f"Error! تأكد من أن اسم المرحلة '{stage}' يطابق اسم التبويب في جوجل شيت.")
+        st.error(f"Error! تأكد من أن اسم المرحلة في جوجل شيت هو '{stage}' بالظبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
