@@ -13,7 +13,7 @@ with col2:
     except:
         pass
 
-# 3. العناوين (Weekly Follow-up)
+# 3. العناوين
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
 st.divider()
@@ -23,21 +23,22 @@ stages = ["Choose Grade / اختر المرحلة", "kg1", "kg2", "Grade1", "Gra
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", stages)
 
 if stage != "Choose Grade / اختر المرحلة":
+    # [cite_start]الرابط التعريفي لملف جوجل شيت الخاص بك [cite: 3]
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # --- الحل الجذري: سحب الملف كاملاً بصيغة CSV مع تحديد اسم الشيت ---
-        # ده الرابط اللي بيضمن إن "كل" الصفوف (القديم والجديد) تظهر في كل مرحلة
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={stage}&v={random.randint(1,999999)}"
+        # --- السر في السطر ده ---
+        # بنستخدم gviz/tq بس بنحدد اسم الـ sheet بدقة وبنكسر الكاش بـ v عشوائي
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات (إجبار Pandas على قراءة كل شيء كـ String لتجنب الحذف)
+        # قراءة البيانات كـ نصوص (Strings) لضمان عدم حذف أي تاريخ
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: حذف الصفوف الفاضية تماماً واستبعاد الصفوف التي ليس بها اسم مادة
+        # تنظيف: استبعاد الصفوف الفارغة في العمود الأول
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث في الشيت (اللي تحت) يظهر أول واحد في الموقع
-            # كدة 1/3 هتظهر فوق و 28/2 تحتها دايماً
+            # ترتيب عكسي (Index): الأحدث في الشيت يظهر أول واحد في الموقع
+            # ده بيضمن إن 1/3 تظهر و 28/2 تظهر تحتها دايماً
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -47,7 +48,7 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # عرض كل "تاريخ" في كارت مستقل
+                # عرض البيانات في كروت
                 with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
@@ -56,7 +57,7 @@ if stage != "Choose Grade / اختر المرحلة":
         else:
             st.warning(f"No data found for {stage}.")
     except Exception as e:
-        st.error(f"Error! تأكد من أن اسم التبويب في جوجل شيت هو '{stage}' بالظبط.")
+        st.error(f"Error! تأكد من أن اسم المرحلة '{stage}' يطابق اسم التبويب في جوجل شيت.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
