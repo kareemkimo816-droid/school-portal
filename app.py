@@ -21,46 +21,46 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # جلب البيانات برقم عشوائي لتحديث اللحظة
+        # جلب البيانات مع مانع التخزين المؤقت لضمان رؤية التعديلات فوراً
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
-        df = pd.read_csv(url).dropna(how='all')
         
+        # قراءة الشيت بالكامل وحذف الصفوف اللي مفيهاش مادة (العمود A)
+        df = pd.read_csv(url)
+        df = df[df.iloc[:, 0].notna()] 
+
         if not df.empty:
-            # تنظيف أسماء المواد (العمود A)
+            # تنظيف أسماء المواد
             df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
             
-            # الحصول على قائمة المواد الفريدة
+            # الحصول على قائمة المواد الفريدة (عربي، دين، الخ)
             unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
                 st.markdown(f"### 📘 {sub}")
                 
-                # جلب صفوف المادة الحالية
+                # جلب كل صفوف المادة دي (القديم والحديث)
                 sub_data = df[df.iloc[:, 0] == sub]
                 
-                # --- السر هنا: عكس ترتيب الصفوف فقط (الأخير في الشيت يظهر أولاً) ---
-                sub_data_reversed = sub_data.iloc[::-1]
+                # ترتيب عكسي: يخلي آخر صف كتبته في الشيت يظهر هو الأول في الموقع
+                sub_data_display = sub_data.iloc[::-1]
 
-                for index, row in sub_data_reversed.iterrows():
-                    # قراءة البيانات كما هي مكتوبة في الشيت (نصاً) لضمان عدم الاختفاء
+                for index, row in sub_data_display.iterrows():
+                    # قراءة البيانات نصياً لضمان عدم الاختفاء
                     lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                     h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
-                    # قراءة التاريخ من العمود E (الخامس)
                     u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    # عرض البيانات
                     with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
                         if notes and str(notes).lower() != "nan" and notes.strip() != "":
                             st.info(f"**💡 Notes:** {notes}")
-                
                 st.markdown("---")
         else:
-            st.warning("No data found.")
+            st.warning("No data found for this grade.")
     except Exception as e:
-        st.error(f"Error: Make sure the sheet name '{stage}' is correct.")
+        st.error("Connection error. Please refresh the page.")
 
 st.divider()
 st.markdown("<div style='text-align: center;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
