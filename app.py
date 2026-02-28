@@ -25,19 +25,19 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # --- الحل الجذري والنهائي هنا ---
-        # سحب الورقة بالكامل بصيغة CSV بدون Query لضمان وصول كل الصفوف
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={stage}&v={random.randint(1,999999)}"
+        # --- التعديل السحري هنا لفصل المراحل ---
+        # نستخدم رابط gviz مع تحديد اسم الـ sheet بدقة لضمان عدم تداخل البيانات
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات بالكامل
+        # قراءة البيانات
         df = pd.read_csv(url)
 
-        # تنظيف البيانات: حذف الصفوف اللي مفيهاش اسم مادة (العمود A)
+        # تنظيف: حذف الصفوف اللي مفيهاش اسم مادة (العمود A)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي (آخر سطر كتبته في الشيت يظهر هو الأول في الموقع)
-            # ده بيضمن إن 1/3 تظهر فوق و 28/2 تظهر تحتها دايماً
+            # ترتيب عكسي: الأحدث في الشيت يظهر هو الأول في الموقع
+            # ده بيضمن إن 1/3 تظهر فوق و 28/2 تظهر تحتها دايماً في نفس الصفحة
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -54,9 +54,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and str(notes).lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}.")
+            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في شيت {stage}.")
     except Exception as e:
-        st.error("Error! تأكد من أن اسم المرحلة في الشيت يطابق الاختيار.")
+        st.error(f"Error! تأكد من أن اسم التبويب في جوجل شيت هو '{stage}' بالظبط.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
