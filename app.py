@@ -14,9 +14,8 @@ with col2:
     except:
         pass
 
-# 3. العناوين (العودة للكلمة الأولى)
+# 3. العنوان الرئيسي فقط
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; color: #4B5563;'>Material Covered / المنهج الدراسي</h3>", unsafe_allow_html=True)
 st.divider()
 
 # 4. اختيار المرحلة
@@ -26,7 +25,7 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # رابط السحب لضمان تحديث البيانات لحظياً (كسر الكاش)
+        # رابط السحب المباشر لضمان ظهور كل الصفوف (القديم والجديد)
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
         df = pd.read_csv(url)
@@ -37,9 +36,8 @@ if stage != "Choose Grade / اختر المرحلة":
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # --- الحل النهائي لظهور القديم والجديد ---
-            # بنعرض الشيت سطر سطر بالعكس (الأحدث فوق) بدون "تجميع"
-            # ده بيخلي كل تاريخ يظهر لوحده كأنه كارت منفصل
+            # ترتيب عكسي: الأحدث في الشيت يظهر هو الأول في الموقع
+            # ده بيضمن إن 1/3 تظهر فوق و 28/2 تظهر تحتها ومستحيل يختفوا
             df_display = df.iloc[::-1]
 
             for index, row in df_display.iterrows():
@@ -49,7 +47,7 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # عرض كل سطر (تاريخ) في Expander مستقل
+                # عرض كل "تاريخ" في كارت مستقل (Expander)
                 with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
