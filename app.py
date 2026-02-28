@@ -5,6 +5,24 @@ import random
 # 1. إعدادات الصفحة
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫", layout="centered")
 
+# --- 🎨 كود CSS لتمييز المربعات (المراحل والبحث) ---
+st.markdown("""
+    <style>
+    /* تغيير خلفية مربع اختيار المرحلة والبحث */
+    div[data-baseweb="select"] > div, 
+    div[data-baseweb="input"] > div {
+        background-color: #F0F2F6 !important; /* لون رمادي فاتح مميز */
+        border: 2px solid #1E3A8A !important; /* إطار كحلي لتحديد المربع */
+        border-radius: 10px !important;
+    }
+    /* تغيير لون الخط داخل المربعات */
+    input {
+        color: #1E3A8A !important;
+        font-weight: bold !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # 2. الشعار والعناوين
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -23,7 +41,6 @@ gid_map = {
     "Grade9": "1978952219", "Grade10": "239983167", "Grade11": "70337667"
 }
 
-# دالة السرعة (Caching)
 @st.cache_data(ttl=300) 
 def load_data(url):
     return pd.read_csv(url, dtype=str)
@@ -38,11 +55,11 @@ def get_subject_style(subject):
     elif "religion" in sub or "دين" in sub: return "🕌", "#047857"
     else: return "📚", "#1E3A8A"
 
-# 4. اختيار المرحلة
+# 4. اختيار المرحلة (المربع الملون)
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", ["Choose Grade / اختر المرحلة"] + list(gid_map.keys()))
 
 if stage != "Choose Grade / اختر المرحلة":
-    # --- 🔍 مكان خانة البحث الجديد (فوق الكل) ---
+    # 🔍 خانة البحث (المربع الملون)
     search_query = st.text_input("🔍 Search Subject or Date / ابحث بالمادة أو التاريخ:", key="search_bar").strip().lower()
     
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
@@ -53,8 +70,6 @@ if stage != "Choose Grade / اختر المرحلة":
 
         if not df.empty:
             df_display = df.iloc[::-1]
-            
-            # عداد للتأكد إذا كان البحث لم يجد نتائج
             found_any = False
 
             for index, row in df_display.iterrows():
@@ -64,7 +79,6 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # الفلترة الذكية
                 if search_query in sub_name.lower() or search_query in u_date.lower():
                     found_any = True
                     emoji, color = get_subject_style(sub_name)
@@ -84,7 +98,7 @@ if stage != "Choose Grade / اختر المرحلة":
                             st.info(f"💡 **Notes:** {notes}")
             
             if not found_any:
-                st.warning("No matching subjects found! / لا توجد نتائج مطابقة")
+                st.warning("No matching subjects found!")
         else:
             st.warning("No data found.")
     except Exception as e:
