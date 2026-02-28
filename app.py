@@ -8,8 +8,10 @@ st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 # 2. الشعار
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    try: st.image("logo.png", use_container_width=True)
-    except: pass
+    try:
+        st.image("logo.png", use_container_width=True)
+    except:
+        pass
 
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
@@ -22,20 +24,21 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # التعديل العبقري: بنطلب من جوجل يبعت الصفحة (sheet) دي بالذات كملف CSV 
-        # وبنحدد النطاق A1:E100 لضمان إنه يمسح أول 100 سطر حرفياً
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&range=A1:E100&v={random.randint(1,999999)}"
+        # الحل الجذري: نستخدم رابط التحميل المباشر بصيغة CSV مع تحديد اسم الورقة
+        # الرابط ده بيسحب الورقة "حرفياً" كما هي بدون أي فلاتر من جوجل
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات
+        # قراءة البيانات بالكامل
         df = pd.read_csv(url, dtype=str)
 
-        # تنظيف: حذف الصفوف اللي مفيهاش مادة (العمود الأول)
+        # تنظيف: استبعاد الصفوف الفارغة في أول عمود
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث فوق والقديم (28/2) تحت
+            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحته
             df_display = df.iloc[::-1]
 
+            # عرض كل الصفوف الموجودة في الجدول بلا استثناء
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
@@ -49,9 +52,9 @@ if stage != "Choose Grade / اختر المرحلة":
                     if notes and notes.lower() != "nan" and notes.strip() != "":
                         st.info(f"**💡 Notes:** {notes}")
         else:
-            st.warning(f"No data found for {stage}. جرب إضافة بيانات جديدة.")
+            st.warning(f"No data found for {stage}. تأكد من وجود بيانات في الشيت.")
     except Exception as e:
-        st.error("Error! تأكد أن اسم التبويب في جوجل شيت يطابق الاختيار.")
+        st.error("Error! حدث خطأ في الاتصال بجوجل شيت.")
 
 st.divider()
 st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
