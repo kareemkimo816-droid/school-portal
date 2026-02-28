@@ -46,12 +46,12 @@ if stage != "Choose Grade / اختر المرحلة":
                 notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                # --- التعديل هنا: اسم المادة بخط عريض وجذاب بجانب التاريخ ---
-                # استعملنا النجوم ** لعمل الخط سميك Bold في العنوان
-                header_text = f"📅 {u_date}  |  📘 {sub_name.upper()}"
+                # --- التعديل السحري هنا ---
+                # وضعنا ** قبل وبعد اسم المادة ليظهر بخط سميك جداً Bold
+                header_text = f"📅 {u_date}  |  📘 **{sub_name.upper()}**"
                 
                 with st.expander(header_text, expanded=True):
-                    # عرض التفاصيل مباشرة بدون تكرار العنوان بالداخل
+                    # المحتوى الداخلي مرتب وبسيط
                     st.markdown(f"**📖 Lesson:** {lesson}")
                     st.markdown(f"**📝 Homework:** {h_work}")
                     
