@@ -21,37 +21,38 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
-        # جلب البيانات مع رقم عشوائي للتحديث اللحظي
+        # جلب البيانات مع رقم عشوائي لضمان التحديث اللحظي
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
         df = pd.read_csv(url)
 
-        # تنظيف: استبعاد الصفوف الفارغة تماماً في العمود الأول
+        # تنظيف: استبعاد الصفوف الفارغة تماماً
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # توحيد أسماء المواد
+            # 1. تنظيف أسماء المواد
             df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
             
-            # الحصول على قائمة المواد الفريدة
+            # 2. الحصول على قائمة المواد
             unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
                 st.markdown(f"### 📘 {sub}")
                 
-                # فلترة بيانات المادة
+                # جلب بيانات المادة
                 sub_data = df[df.iloc[:, 0] == sub].copy()
                 
-                # --- الحل السحري: ترتيب تنازلي بناءً على رقم الصف (Index) ---
-                # ده بيخلي "آخر سطر" كتبته في جوجل شيت يظهر "أول واحد" في الموقع غصب عنه
-                sub_data = sub_data.sort_index(ascending=False)
+                # --- التعديل السحري هنا ---
+                # بدل ما نعكس الجدول، هنستخدم دالة sort_values 
+                # بس بنحدد لها عمود التاريخ (العمود رقم 5 اللي هو index 4)
+                # وبنقول لها رتبي "تنازلياً" يعني الأحدث فوق
+                sub_data_sorted = sub_data.sort_values(by=sub_data.columns[4], ascending=False)
 
-                for index, row in sub_data.iterrows():
+                for index, row in sub_data_sorted.iterrows():
                     lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                     h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                     u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    # عرض البيانات في كارت
                     with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
