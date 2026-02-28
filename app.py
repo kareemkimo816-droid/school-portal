@@ -69,6 +69,9 @@ except Exception as e:
     # --- Copyright & Date in English ---
 st.divider() 
 
+# --- التذييل النهائي للموقع ---
+st.divider()
+
 st.markdown(
     """
     <style>
@@ -76,17 +79,21 @@ st.markdown(
         text-align: center;
         color: #1E3A8A;
         padding: 20px;
-        font-size: 14px;
-        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
     }
-    .copyright-name {
-        font-weight: bold;
+    .main-footer {
         font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .sub-footer {
+        font-size: 14px;
+        opacity: 0.9;
     }
     </style>
     <div class="footer">
-        <p class="copyright-name">Copyright © 2026: Mr. Kareem Magdy</p>
-        <p>Fadl Modern Language School - All Rights Reserved</p>
+        <div class="main-footer">Copyright © 2026: Mr. Kareem Magdy</div>
+        <div class="sub-footer">Fadl Modern Language School - All Rights Reserved</div>
     </div>
     """,
     unsafe_allow_html=True
