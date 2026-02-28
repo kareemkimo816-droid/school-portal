@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="First Language School", page_icon="🏫")
-st.title("🏫 First Language School - Giza")
+# إعداد الصفحة واسم التبويب في المتصفح
+st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 
 sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
 stages = ["kg1", "kg2", "Grade1", "Grade2", "Grade3", "Grade4", "Grade5", "Grade6", "Grade7", "Grade8", "Grade9", "Grade10", "Grade11"]
