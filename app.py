@@ -27,7 +27,7 @@ if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
         # الرابط الذكي لجلب بيانات المرحلة المختارة فقط مع تحديث لحظي (كسر الكاش)
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+       url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&t={random.randint(1,999999)}"
         
         # قراءة البيانات كـ نصوص (Strings) لضمان عدم حذف أي تاريخ
         df = pd.read_csv(url, dtype=str)
