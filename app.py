@@ -21,46 +21,50 @@ stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسي
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
     try:
+        # جلب البيانات مع رقم عشوائي لضمان التحديث اللحظي
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&v={random.randint(1,999999)}"
+        
+        # قراءة الشيت بالكامل
         df = pd.read_csv(url)
 
-        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A)
+        # تنظيف: استبعاد الصفوف اللي مفيهاش مادة (العمود A فاضي)
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # 1. توحيد أسماء المواد
+            # توحيد أسماء المواد عشان التجميع يظبط
             df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
             
-            # 2. تحويل عمود التاريخ (E) لتاريخ حقيقي للترتيب
-            # بنفترض إنك بتكتب التاريخ يوم/شهر/سنة (مثل 28/2/2026)
-            df.iloc[:, 4] = pd.to_datetime(df.iloc[:, 4], dayfirst=True, errors='coerce')
-
-            # 3. الحصول على المواد الفريدة مرتبة أبجدياً
-            unique_subjects = sorted(df.iloc[:, 0].unique())
+            # الحصول على قائمة المواد الفريدة بالترتيب اللي ظهرت بيه في الشيت
+            unique_subjects = df.iloc[:, 0].unique()
 
             for sub in unique_subjects:
                 st.markdown(f"### 📘 {sub}")
                 
-                # جلب بيانات المادة وترتيبها (الأحدث تاريخاً فوق)
-                sub_data = df[df.iloc[:, 0] == sub].sort_values(by=df.columns[4], ascending=False)
+                # جلب كل صفوف المادة دي فقط
+                sub_data = df[df.iloc[:, 0] == sub]
+                
+                # --- الترتيب العكسي: بياخد آخر صفوف في الشيت يعرضها فوق ---
+                # لو كتبت 1/3 تحت 28/2 في الشيت، الـ 1/3 هتظهر هي الأولى في الموقع
+                sub_data_display = sub_data.iloc[::-1]
 
-                for index, row in sub_data.iterrows():
-                    # تحويل التاريخ لشكل جميل للعرض
-                    display_date = row.iloc[4].strftime('%d/%m/%Y') if pd.notnull(row.iloc[4]) else "No Date"
+                for index, row in sub_data_display.iterrows():
+                    # سحب البيانات "نصياً" كما هي مكتوبة لضمان عدم اختفاء التاريخ
                     lesson = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                     h_work = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
                     notes  = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
+                    u_date = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
-                    with st.expander(f"📅 {display_date}", expanded=True):
+                    # عرض البيانات في كارت (Expander)
+                    with st.expander(f"📅 {u_date}", expanded=True):
                         st.markdown(f"**📖 Lesson:** {lesson}")
                         st.markdown(f"**📝 Homework:** {h_work}")
                         if notes and str(notes).lower() != "nan" and notes.strip() != "":
                             st.info(f"**💡 Notes:** {notes}")
                 st.divider()
         else:
-            st.warning("No data found.")
+            st.warning("No data found for this grade.")
     except Exception as e:
-        st.error("Error connecting to Google Sheets. Check the sheet name.")
+        st.error("Error connecting to Google Sheets. Please check your sheet names.")
 
 st.divider()
 st.markdown("<div style='text-align: center;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
