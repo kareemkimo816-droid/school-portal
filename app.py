@@ -2,58 +2,57 @@ import streamlit as st
 import pandas as pd
 import random
 
-# 1. إعدادات الصفحة
 st.set_page_config(page_title="Fadl Modern Language School", page_icon="🏫")
 
-# 2. الشعار
+# 1. قاموس الـ GID (استبدل الأرقام دي بالأرقام الحقيقية من رابط الشيت عندك)
+# افتح كل Tab في المتصفح وانسخ الرقم اللي بعد gid= في الرابط فوق
+gid_map = {
+    "kg1": "0",          # غالباً أول صفحة بتكون 0
+    "kg2": "12345678",   # غير الرقم ده للرقم الحقيقي لصفحة kg2
+    "Grade1": "98765432", # وهكذا لبقية المراحل
+    "Grade2": "11223344",
+    # أضف بقية المراحل هنا بنفس الطريقة
+}
+
+# 2. الشعار والعناوين
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    try: 
-        st.image("logo.png", use_container_width=True)
-    except: 
-        pass
+    try: st.image("logo.png", use_container_width=True)
+    except: pass
 
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>Fadl Modern Language School</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; color: #4B5563;'>Weekly Follow-up</h3>", unsafe_allow_html=True)
 st.divider()
 
 # 3. اختيار المرحلة
-stages = ["Choose Grade / اختر المرحلة", "kg1", "kg2", "Grade1", "Grade2", "Grade3", "Grade4", "Grade5", "Grade6", "Grade7", "Grade8", "Grade9", "Grade10", "Grade11"]
+stages = ["Choose Grade / اختر المرحلة"] + list(gid_map.keys())
 stage = st.selectbox("👇 Select Grade / اختر المرحلة الدراسية:", stages)
 
 if stage != "Choose Grade / اختر المرحلة":
     sheet_id = "17r99YTRCCRWP3a9vI6SwKtnK60_ajpmWvs0TUJOqQ_U"
+    selected_gid = gid_map[stage]
+    
     try:
-        # التعديل الجوهري: استخدام رابط gviz مع تحديد sheet بدقة 
-        # واستخدام tq=select * لإجبار جوجل على إرسال كافة السطور (حل مشكلة 28/2)
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={stage}&tq=select%20*&v={random.randint(1,999999)}"
+        # الرابط السحري: نستخدم GID مع طلب التصدير لضمان (الفصل + ظهور كل البيانات)
+        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={selected_gid}&v={random.randint(1,999999)}"
         
-        # قراءة البيانات بالكامل
         df = pd.read_csv(url, dtype=str)
-
-        # تنظيف: استبعاد الصفوف الفارغة في أول عمود
         df = df[df.iloc[:, 0].notna()].copy()
 
         if not df.empty:
-            # ترتيب عكسي: الأحدث فوق والقديم (28/2) يظهر تحت بكل سلاسة
             df_display = df.iloc[::-1]
-
             for index, row in df_display.iterrows():
                 sub_name = str(row.iloc[0]).strip()
                 lesson   = str(row.iloc[1]) if pd.notna(row.iloc[1]) else "---"
                 h_work   = str(row.iloc[2]) if pd.notna(row.iloc[2]) else "---"
-                notes    = str(row.iloc[3]) if len(row) > 3 and pd.notna(row.iloc[3]) else ""
                 u_date   = str(row.iloc[4]) if len(row) > 4 and pd.notna(row.iloc[4]) else "No Date"
 
                 with st.expander(f"📅 {u_date}  ⬅️  {sub_name}", expanded=True):
-                    st.markdown(f"**📖 Lesson:** {lesson}")
-                    st.markdown(f"**📝 Homework:** {h_work}")
-                    if notes and notes.lower() != "nan" and notes.strip() != "":
-                        st.info(f"**💡 Notes:** {notes}")
+                    st.write(f"**📖 Lesson:** {lesson}")
+                    st.write(f"**📝 Homework:** {h_work}")
         else:
-            st.warning(f"No data found for {stage}. تأكد أن تبويب الشيت يحتوي على بيانات.")
+            st.warning("No data found.")
     except Exception as e:
-        st.error(f"Error! تأكد أن اسم التبويب في جوجل شيت هو '{stage}' بالضبط.")
+        st.error("Error connecting to Google Sheets.")
 
 st.divider()
-st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Copyright © 2026: Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #1E3A8A;'><b>Mr. Kareem Magdy</b></div>", unsafe_allow_html=True)
